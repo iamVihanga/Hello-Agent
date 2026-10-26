@@ -16,8 +16,8 @@ async function helloGemini(): Promise<HelloOutput> {
 
   if (!apiKey) throw new Error("Missing GOOGLE_API_KEY environment variable");
 
-  const model = "gemini-2.0-flash-lite";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const model = "gemini-3.5-flash-lite";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const response = await fetch(url, {
     method: "POST",
@@ -64,7 +64,7 @@ async function helloGroq(): Promise<HelloOutput> {
 
   if (!apiKey) throw new Error("Groq API Key is missing");
 
-  const model = "llama-3.1-8b-instant";
+  const model = "openai/gpt-oss-20b";
 
   const url = `https://api.groq.com/openai/v1/chat/completions`;
 
@@ -141,4 +141,16 @@ async function helloOpenAI(): Promise<HelloOutput> {
     model,
     message: String(content).trim()
   };
+}
+
+export async function selectAndHello(): Promise<HelloOutput> {
+  const forced = (process.env.PROVIDER || "").toLowerCase() as Provider | "";
+
+  if (forced === "google") return helloGemini();
+  if (forced === "groq") return helloGroq();
+  if (forced === "openai") return helloOpenAI();
+
+  throw new Error(
+    `No provider selected. Please set the PROVIDER environment variable to one of: openai, google, groq`
+  );
 }
